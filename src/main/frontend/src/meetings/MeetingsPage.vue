@@ -20,7 +20,6 @@
 <script>
     import NewMeetingForm from "./NewMeetingForm";
     import MeetingsList from "./MeetingsList";
-
     export default {
         components: {NewMeetingForm, MeetingsList},
         props: ['username'],
@@ -31,7 +30,11 @@
         },
         methods: {
             addNewMeeting(meeting) {
-                this.meetings.push(meeting);
+                this.$http.post('meetings', meeting)
+                    .then(response => {
+                        this.meetings.push(response.body);
+                    });
+                this.getMeetings();
             },
             addMeetingParticipant(meeting) {
                 meeting.participants.push(this.username);
@@ -41,7 +44,16 @@
             },
             deleteMeeting(meeting) {
                 this.meetings.splice(this.meetings.indexOf(meeting), 1);
+            },          
+            getMeetings() {
+                this.$http.get('meetings')
+                    .then(response => {
+                        this.meetings = response.body;
+                    })
             }
-        }
+        },
+        mounted() {
+            this.$nextTick(this.getMeetings());
+        },
     }
 </script>
