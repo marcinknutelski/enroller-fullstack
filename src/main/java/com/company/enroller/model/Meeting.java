@@ -1,42 +1,75 @@
-<template>
-  <table v-if="meetings.length > 0">
-    <thead>
-    <tr>
-      <th>Nazwa spotkania</th>
-      <th>Opis</th>
-      <th>Uczestnicy</th>
-      <td></td>
-    </tr>
-    </thead>
-    <tbody>
-    <tr v-for="meeting in meetings" :key="meeting.id">
-      <td>{{ meeting.title }}</td>    
-      <td>{{ meeting.description }}</td>
-      <td>
-        <ul v-if="meeting.participants">
-          <li v-for="participant in meeting.participants" :key="participant">
-            {{ participant.login }}
-          </li>
-        </ul>
-      </td>
-      <td style="text-align: right; min-width: 400px">
-<!--        <button v-if="meeting.participants && meeting.participants.indexOf(username) < 0" class="button-outline"-->
-        <button v-if="meeting.participants.indexOf(username) < 0" class="button-outline"
-                @click="$emit('attend', meeting)">
-          Zapisz się
-        </button>
-        <button v-else class="button-outline" @click="$emit('unattend', meeting)">Wypisz się</button>
-        <button v-if="meeting.participants.length === 0" class="button" @click="$emit('delete', meeting)">
-          Usuń puste spotkanie
-        </button>
-      </td>
-    </tr>
-    </tbody>
-  </table>
-</template>
+package com.company.enroller.model;
 
-<script>
-    export default {
-        props: ['meetings', 'username']
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import javax.persistence.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
+@Entity
+@Table(name = "meeting")
+public class Meeting {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private long id;
+
+    @Column
+    private String title;
+
+    @Column
+    private String description;
+
+    @Column
+    private String date;
+
+    // @JsonIgnore
+    @ManyToMany(mappedBy = "meetings")
+    Set<Participant> participants = new HashSet<>();
+
+    public long getId() {
+        return id;
     }
-</script>
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public void addParticipant(Participant participant) {
+        this.participants.add(participant);
+    }
+
+    public void removeParticipant(Participant participant) {
+        this.participants.remove(participant);
+    }
+
+    public Collection<Participant> getParticipants() {
+        return participants;
+    }
+
+}
